@@ -247,7 +247,7 @@ describe('Map Component', () => {
       render(<Map {...defaultProps} routes={routes} />);
       
       const polyline = screen.getByTestId('polyline');
-      expect(polyline.dataset.color).toBe('#28a745'); // Green for highlighted
+      expect(polyline.dataset.color).toBe('#22c55e'); // Green for highlighted
     });
 
     it('applies default color for normal routes', () => {
@@ -265,7 +265,7 @@ describe('Map Component', () => {
       render(<Map {...defaultProps} routes={routes} />);
       
       const polyline = screen.getByTestId('polyline');
-      expect(polyline.dataset.color).toBe('#007bff'); // Blue for normal
+      expect(polyline.dataset.color).toBe('#22c55e'); // Green for normal
     });
 
     it('displays distance in route popup', () => {

@@ -1,0 +1,34 @@
+name: PR Quality Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+  statuses: write
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Issue Linking
+        uses: actions/github-script
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || "";
+            
+            // Check for keywords like Fixes #123, Closes #123, Resolves #123, etc.
+            const issueLinkRegex = /(closes|closed|fixes|fixed|resolves|resolved)\s+#\d+/i;
+            const hasIssueLink = issueLinkRegex.test(body);
+            
+            const skipLinking = pr.title.toLowerCase().includes('typo') || 
+                                pr.title.toLowerCase().includes('chore') || 
+                                pr.title.toLowerCase().includes('[skip-issue]');
+                                
+            if (!hasIssueLink && !skipLinking) {
+              core.setFailed("PR description must link an issue (e.g. 'Fixes #123'). Add '[skip-issue]' to your PR title, or use 'typo' / 'chore' in the title to bypass this check if no issue exists.");
+            } else {
+              console.log("PR issue linking validation successful.");
+            }

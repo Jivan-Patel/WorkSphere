@@ -1,0 +1,107 @@
+name: Welcome & Initial PR Triaging
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Welcome Issue Contributor
+        if: github.event_name == 'issues'
+        uses: actions/github-script
+        with:
+          script: |
+            const association = context.payload.issue.author_association;
+            const isFirstTime = association === 'FIRST_TIME_CONTRIBUTOR' || association === 'FIRST_TIMER';
+            let welcomePrefix = '';
+            
+            if (isFirstTime) {
+              welcomePrefix = `🎉 Welcome to WorkSphere!\nThanks for making your first contribution. Need help? Feel free to ask.\n\n`;
+            }
+            
+            const issueComment = welcomePrefix + `🎉 Thanks for opening this issue!
+
+            We appreciate your contribution.
+
+            Please ensure:
+            ✅ Clear description
+            ✅ Expected behavior
+            ✅ Screenshots if possible
+
+            The maintainers will review it shortly.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: issueComment
+            });
+
+      - name: Welcome PR Contributor & Triage PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const prAuthor = context.payload.pull_request.user.login;
+            const association = context.payload.pull_request.author_association;
+            const isFirstTime = association === 'FIRST_TIME_CONTRIBUTOR' || association === 'FIRST_TIMER';
+            let welcomePrefix = '';
+            
+            if (isFirstTime) {
+              welcomePrefix = `🎉 Welcome to WorkSphere!\nThanks for making your first contribution. Need help? Feel free to ask.\n\n`;
+            }
+            
+            // 1. Post PR Welcome comment
+            const prComment = welcomePrefix + `🎉 Thank you for contributing to WorkSphere!
+
+            Please ensure:
+
+            ✅ Tests pass
+            ✅ No secrets committed
+            ✅ Documentation updated`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: prComment
+            });
+
+            // 2. Add labels (ECSoC26, needs-review)
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['ECSoC26', 'needs-review']
+            });
+
+            // 3. Assign PR author as assignee
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              assignees: [prAuthor]
+            });
+
+            // 4. Request review from maintainer (SatyamPandey-07)
+            if (prAuthor !== 'SatyamPandey-07') {
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  reviewers: ['SatyamPandey-07']
+                });
+              } catch (error) {
+                console.log(`Failed to request review: ${error.message}`);
+              }
+            }

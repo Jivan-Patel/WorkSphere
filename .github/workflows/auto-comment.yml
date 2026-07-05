@@ -1,0 +1,32 @@
+name: Auto Thank on Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  thank-contributor:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Thank Contributor
+        uses: actions/github-script
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const thankComment = `🎉 Congratulations!
+
+            Your contribution has been merged.
+
+            Thank you for improving WorkSphere.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: thankComment
+            });

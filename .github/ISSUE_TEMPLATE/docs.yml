@@ -1,0 +1,24 @@
+name: "📝 Documentation Update"
+description: "Suggest improvements or additions to the documentation."
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us make our documentation better!
+  - type: textarea
+    id: current_docs
+    attributes:
+      label: Current Documentation Section
+      description: Where is the current documentation that needs improvement?
+      placeholder: e.g. README.md or setup guide
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_changes
+    attributes:
+      label: Proposed Changes
+      description: Describe what you would like to change or add.
+      placeholder: Detail the improvements...
+    validations:
+      required: true

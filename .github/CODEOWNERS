@@ -1,0 +1,5 @@
+# CODEOWNERS file for WorkSphere
+# Each line is a pattern followed by one or more owners.
+# These owners will be automatically requested for review when a PR touches their files.
+
+*       @SatyamPandey-07
