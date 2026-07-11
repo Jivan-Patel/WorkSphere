@@ -46,14 +46,7 @@ export function VenueDetailDialog({
         outlets: { confidenceScore: 100, upvotes: 6, downvotes: 0 },
     });
 
-    const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "menu">("overview");
-    const [reviews, setReviews] = useState<any[]>([]);
-    const [menuPhotos, setMenuPhotos] = useState<string[]>([]);
-    const [uploadingMenu, setUploadingMenu] = useState(false);
-    const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
-    const [wifiPredictions, setWifiPredictions] = useState<any[]>([]);
-
-    const submitAmenityVote = async (amenityKey: "wifi" | "outlets", isUpvote: boolean) => {
+    const _submitAmenityVote = async (amenityKey: "wifi" | "outlets", isUpvote: boolean) => {
         if (!venue) return;
         try {
             const response = await fetch("/api/venues/amenity-vote", {
@@ -90,6 +83,7 @@ export function VenueDetailDialog({
             wifi: { confidenceScore: 100, upvotes: 6, downvotes: 0 },
             outlets: { confidenceScore: 100, upvotes: 6, downvotes: 0 },
         });
+    }, [venue]);
 
         setLiveScore(venue.score ?? null);
         setPhotoLoading(true);
@@ -372,7 +366,11 @@ export function VenueDetailDialog({
                     ))}
                 </div>
 
-                <div className="p-8 bg-white dark:bg-zinc-900 overflow-y-auto max-h-[calc(90vh-320px)]">
+                {/* Content Section */}
+
+
+
+                <div className="p-8 bg-white dark:bg-zinc-900 overflow-y-auto max-h-[calc(90vh-360px)]">
                     {activeTab === "overview" && (
                         <>
                             <div className="grid grid-cols-3 gap-4 mb-8">
@@ -455,6 +453,9 @@ export function VenueDetailDialog({
                                         {venue.hasErgonomic && " The workspace features verified ergonomic chairs and height-adjustable/standing desks."}
                                     </p>
                                 </div>
+
+
+
 
                                 <div className="flex flex-col gap-3 pt-4">
                                     <button
