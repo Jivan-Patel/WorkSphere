@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
     env:
       DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dummy
@@ -24,19 +27,84 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci > install_output.log 2>&1
+          INSTALL_EXIT=$?
+          cat install_output.log
+          if [ $INSTALL_EXIT -ne 0 ]; then
+            echo "INSTALL_FAILED=true" >> $GITHUB_ENV
+            exit $INSTALL_EXIT
+          fi
 
       - name: Run Prisma generate
         run: npx prisma generate
 
       - name: Run lint
-        run: npm run lint
+        run: |
+          npm run lint > lint_output.log 2>&1
+          LINT_EXIT=$?
+          cat lint_output.log
+          if [ $LINT_EXIT -ne 0 ]; then
+            echo "LINT_FAILED=true" >> $GITHUB_ENV
+            exit $LINT_EXIT
+          fi
 
       - name: Build Next.js application
-        run: npm run build
+        run: |
+          npm run build > build_output.log 2>&1
+          BUILD_EXIT=$?
+          cat build_output.log
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "BUILD_FAILED=true" >> $GITHUB_ENV
+            exit $BUILD_EXIT
+          fi
 
       - name: Run unit tests
-        run: npm test
+        run: |
+          npm test > test_output.log 2>&1
+          TEST_EXIT=$?
+          cat test_output.log
+          if [ $TEST_EXIT -ne 0 ]; then
+            echo "TEST_FAILED=true" >> $GITHUB_ENV
+            exit $TEST_EXIT
+          fi
+
+      - name: Post Failure Comment on PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let commentBody = '## ⚠️ Pull Request Checks Failed\n\nHi @' + context.payload.sender.login + ', thank you for your contribution! Unfortunately, some build or test checks failed. Please see the summary below:\n\n';
+            
+            if (fs.existsSync('install_output.log') && process.env.INSTALL_FAILED === 'true') {
+              const log = fs.readFileSync('install_output.log', 'utf8');
+              commentBody += '### 📦 Dependency Installation Failure\n```\n' + log.slice(-1000) + '\n```\n\n';
+            }
+            
+            if (fs.existsSync('lint_output.log') && process.env.LINT_FAILED === 'true') {
+              const log = fs.readFileSync('lint_output.log', 'utf8');
+              commentBody += '### 🚨 Lint Verification Failure\n```\n' + log.slice(-1000) + '\n```\n\n';
+            }
+            
+            if (fs.existsSync('build_output.log') && process.env.BUILD_FAILED === 'true') {
+              const log = fs.readFileSync('build_output.log', 'utf8');
+              commentBody += '### 🛠️ Production Build & Typecheck Failure\n```\n' + log.slice(-1000) + '\n```\n\n';
+            }
+            
+            if (fs.existsSync('test_output.log') && process.env.TEST_FAILED === 'true') {
+              const log = fs.readFileSync('test_output.log', 'utf8');
+              commentBody += '### 🧪 Unit Tests Failure\n```\n' + log.slice(-1000) + '\n```\n\n';
+            }
+            
+            commentBody += 'Please fix these issues and push updates to your branch. Once all checks pass, your PR can be merged!';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: commentBody
+            });
 
   auto-approve:
     runs-on: ubuntu-latest
