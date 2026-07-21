@@ -85,8 +85,18 @@ async function upstashRateLimit(
       [key],
       [now, limit, windowSeconds],
     );
+    const windowMs = 60_000;
+    const windowSeconds = Math.ceil(windowMs / 1000);
+    const windowMinute = Math.floor(Date.now() / windowMs);
+    const key = `worksphere:ratelimit:${identifier}:${windowMinute}`;
 
-    return Number(allowed) === 1;
+    const tx = redis.multi();
+    tx.incr(key);
+    tx.expire(key, windowSeconds);
+    const result = await tx.exec();
+
+    const count = result[0] as number;
+    return count <= limit;
   } catch {
     return memRateLimit(identifier, limit);
   }
