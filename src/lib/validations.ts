@@ -157,7 +157,10 @@ export const createFavoriteTagSchema = z.object({
 
 export const updateFavoriteTagSchema = z.object({
   name: z.string().min(1).max(50).trim().optional(),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color").optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color")
+    .optional(),
 });
 
 // Location schema
@@ -173,7 +176,11 @@ export const createFolderSchema = z.object({
     .trim()
     .min(1, "Folder name is required")
     .max(100, "Folder name must be 100 characters or less"),
-  description: z.string().trim().max(500, "Description must be 500 characters or less").optional(),
+  description: z
+    .string()
+    .trim()
+    .max(500, "Description must be 500 characters or less")
+    .optional(),
   isPublic: z.boolean().optional(),
 });
 
@@ -184,7 +191,11 @@ export const updateFolderSchema = z.object({
     .min(1, "Folder name is required")
     .max(100, "Folder name must be 100 characters or less")
     .optional(),
-  description: z.string().trim().max(500, "Description must be 500 characters or less").optional(),
+  description: z
+    .string()
+    .trim()
+    .max(500, "Description must be 500 characters or less")
+    .optional(),
   isPublic: z.boolean().optional(),
 });
 

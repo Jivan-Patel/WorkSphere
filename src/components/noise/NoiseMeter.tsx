@@ -158,7 +158,8 @@ export function NoiseMeter({ onMeasured }: Props) {
       const targetFrameInterval = 1000 / 60;
 
       const tick = async (timestamp?: number) => {
-        const now = typeof timestamp === "number" ? timestamp : performance.now();
+        const now =
+          typeof timestamp === "number" ? timestamp : performance.now();
 
         if (lastTickTime !== null) {
           const delta = now - lastTickTime;

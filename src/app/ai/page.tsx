@@ -30,9 +30,7 @@ import { PartyKitPresenceWrapper } from "@/components/chat/PartyKitPresenceWrapp
 // Dynamically import EnhancedChatbot to isolate WASM loading / client effects during streaming SSR and prevent hydration mismatches
 const EnhancedChatbot = dynamic(
   () =>
-    import("@/components/EnhancedChatbot").then(
-      (mod) => mod.EnhancedChatbot,
-    ),
+    import("@/components/EnhancedChatbot").then((mod) => mod.EnhancedChatbot),
   {
     ssr: false,
     loading: () => (

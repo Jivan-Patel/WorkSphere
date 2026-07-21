@@ -86,7 +86,9 @@ describe("NoiseMeter Component & 60fps Audio Throttling", () => {
   it("renders idle state with measure button", () => {
     render(<NoiseMeter onMeasured={mockOnMeasured} />);
 
-    expect(screen.getByRole("button", { name: /Measure Ambient Noise/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Measure Ambient Noise/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Decibel Noise Monitor/i)).toBeInTheDocument();
   });
 
@@ -94,7 +96,9 @@ describe("NoiseMeter Component & 60fps Audio Throttling", () => {
     render(<NoiseMeter onMeasured={mockOnMeasured} />);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Measure Ambient Noise/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /Measure Ambient Noise/i }),
+      );
       await jest.advanceTimersByTimeAsync(50);
     });
 
@@ -107,7 +111,9 @@ describe("NoiseMeter Component & 60fps Audio Throttling", () => {
     render(<NoiseMeter onMeasured={mockOnMeasured} />);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Measure Ambient Noise/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /Measure Ambient Noise/i }),
+      );
     });
 
     expect(screen.getByText(/Microphone access failed/i)).toBeInTheDocument();
@@ -118,7 +124,9 @@ describe("NoiseMeter Component & 60fps Audio Throttling", () => {
     render(<NoiseMeter onMeasured={onMeasured} />);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Measure Ambient Noise/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /Measure Ambient Noise/i }),
+      );
       await jest.advanceTimersByTimeAsync(50);
     });
 
