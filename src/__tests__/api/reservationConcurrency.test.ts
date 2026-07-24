@@ -88,7 +88,7 @@ describe("POST /api/reservations/book — Concurrent Seat Reservations & Transac
     });
 
     const res = await POST(req);
-    expect(res.status).toBe(201);
+    expect(res!.status).toBe(201);
     expect(
       mockTx.$executeRawUnsafe.mock.calls.length +
         mockTx.$executeRaw.mock.calls.length,
@@ -129,9 +129,9 @@ describe("POST /api/reservations/book — Concurrent Seat Reservations & Transac
     });
 
     const res = await POST(req);
-    const json = await res.json();
+    const json = await res!.json();
 
-    expect(res.status).toBe(409);
+    expect(res!.status).toBe(409);
     expect(json.error).toContain("reserved");
   });
 
@@ -186,7 +186,7 @@ describe("POST /api/reservations/book — Concurrent Seat Reservations & Transac
     });
 
     const res = await POST(req);
-    expect(res.status).toBe(201);
+    expect(res!.status).toBe(201);
     expect(attempts).toBe(2);
   });
 });
